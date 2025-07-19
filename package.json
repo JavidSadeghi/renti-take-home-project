@@ -1,0 +1,8 @@
+{
+  "name": "checkpoint-renti",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ]
+}
