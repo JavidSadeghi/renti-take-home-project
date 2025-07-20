@@ -1,6 +1,12 @@
 import express from 'express';
-import { body } from 'express-validator';
 import { protect } from '../middlewares/authMiddleware';
+import { 
+  validateStandup, 
+  validateTeamQuery, 
+  validateHistoryQuery, 
+  validateDateParam,
+  validateToken 
+} from '../middlewares/validationMiddleware';
 import {
   createOrUpdateStandup,
   getTodayStandup,
@@ -11,29 +17,15 @@ import {
 
 const router = express.Router();
 
-// Validation middleware
-const validateStandup = [
-  body('yesterday')
-    .trim()
-    .notEmpty()
-    .withMessage('Yesterday field is required'),
-  body('today')
-    .trim()
-    .notEmpty()
-    .withMessage('Today field is required'),
-  body('blockers')
-    .optional()
-    .trim()
-];
-
-// All routes require authentication
+// All routes require authentication and token validation
+router.use(validateToken);
 router.use(protect);
 
-// Routes
+// Routes with comprehensive validation
 router.post('/', validateStandup, createOrUpdateStandup);
 router.get('/today', getTodayStandup);
-router.get('/team', getTeamStandups);
-router.get('/history', getUserHistory);
-router.get('/date/:date', getStandupsByDate);
+router.get('/team', validateTeamQuery, getTeamStandups);
+router.get('/history', validateHistoryQuery, getUserHistory);
+router.get('/date/:date', validateDateParam, getStandupsByDate);
 
 export default router;
