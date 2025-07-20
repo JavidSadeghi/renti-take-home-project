@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getTeamStandups } from '../api/standups';
 import type { TeamStandup } from '../api/standups';
 
@@ -8,11 +8,7 @@ const Team: React.FC = () => {
   const [error, setError] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
 
-  useEffect(() => {
-    fetchTeamStandups();
-  }, [selectedDate]);
-
-  const fetchTeamStandups = async () => {
+  const fetchTeamStandups = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -24,7 +20,11 @@ const Team: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedDate]);
+
+  useEffect(() => {
+    fetchTeamStandups();
+  }, [fetchTeamStandups]);
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedDate(e.target.value);

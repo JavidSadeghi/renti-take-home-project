@@ -62,7 +62,7 @@ export const getUserHistory = async (
   startDate?: string,
   endDate?: string
 ): Promise<HistoryResponse> => {
-  const params: any = { page, limit };
+  const params: Record<string, string | number> = { page, limit };
   if (startDate) params.startDate = startDate;
   if (endDate) params.endDate = endDate;
   

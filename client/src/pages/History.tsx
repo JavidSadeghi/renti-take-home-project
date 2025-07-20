@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getUserHistory } from '../api/standups';
 import type { HistoryResponse, Standup } from '../api/standups';
 
@@ -10,11 +10,7 @@ const History: React.FC = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  useEffect(() => {
-    fetchHistory();
-  }, [currentPage, startDate, endDate]);
-
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -31,7 +27,11 @@ const History: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, startDate, endDate]);
+
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
