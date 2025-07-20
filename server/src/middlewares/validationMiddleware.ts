@@ -75,23 +75,20 @@ export const validateStandup = [
     .notEmpty()
     .withMessage('Yesterday field is required')
     .isLength({ max: 1000 })
-    .withMessage('Yesterday field cannot exceed 1000 characters')
-    .escape(),
+    .withMessage('Yesterday field cannot exceed 1000 characters'),
   
   body('today')
     .trim()
     .notEmpty()
     .withMessage('Today field is required')
     .isLength({ max: 1000 })
-    .withMessage('Today field cannot exceed 1000 characters')
-    .escape(),
+    .withMessage('Today field cannot exceed 1000 characters'),
   
   body('blockers')
     .optional()
     .trim()
     .isLength({ max: 500 })
-    .withMessage('Blockers field cannot exceed 500 characters')
-    .escape(),
+    .withMessage('Blockers field cannot exceed 500 characters'),
   
   handleValidationErrors
 ];

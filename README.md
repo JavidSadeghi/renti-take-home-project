@@ -138,6 +138,16 @@ npm test
 npm run test:watch
 ```
 
+### 7. API Documentation
+Once the server is running, you can access the interactive API documentation:
+
+- **Swagger UI**: http://localhost:5000/api-docs
+- **Features**:
+  - Interactive API testing
+  - Request/response schemas
+  - Authentication examples
+  - Try-it-out functionality
+
 ## 📚 API Documentation
 
 ### Authentication Endpoints
