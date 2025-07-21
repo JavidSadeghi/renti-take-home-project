@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getUserHistory } from '../api/standups';
 import type { HistoryResponse, Standup } from '../api/standups';
+import type { AxiosError } from 'axios';
 
 const History: React.FC = () => {
   const [history, setHistory] = useState<HistoryResponse | null>(null);
@@ -22,8 +23,20 @@ const History: React.FC = () => {
       );
       setHistory(data);
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { msg?: string } } };
-      setError(error.response?.data?.msg || 'Failed to fetch history');
+      setHistory(null);
+      const error = err as AxiosError<{ message?: string; msg?: string; errors?: { message?: string }[] }>;
+      if (error.response?.status === 404 && error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else if (error.response?.status === 400) {
+        const errors = error.response.data?.errors;
+        if (Array.isArray(errors) && errors.length > 0 && errors[0].message) {
+          setError(errors[0].message);
+        } else {
+          setError(error.response.data?.message || 'Validation failed');
+        }
+      } else {
+        setError(error.response?.data?.msg || 'Failed to fetch history');
+      }
     } finally {
       setLoading(false);
     }
@@ -71,7 +84,7 @@ const History: React.FC = () => {
         <h1 className="text-2xl font-bold text-gray-900 mb-4">Standup History</h1>
         
         <div className="bg-white shadow rounded-lg p-4 mb-6">
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-end gap-4">
             <div>
               <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
                 Start Date
@@ -226,7 +239,7 @@ const History: React.FC = () => {
         </div>
       ) : (
         <div className="text-center py-12">
-          <p className="text-gray-500">No standup history found</p>
+          <p className="text-gray-500">{error || 'No standup history found'}</p>
         </div>
       )}
     </div>

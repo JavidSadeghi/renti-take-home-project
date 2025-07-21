@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getTeamStandups } from '../api/standups';
 import type { TeamStandup } from '../api/standups';
+import type { AxiosError } from 'axios';
 
 const Team: React.FC = () => {
   const [teamStandups, setTeamStandups] = useState<TeamStandup[]>([]);
@@ -15,8 +16,13 @@ const Team: React.FC = () => {
       const data = await getTeamStandups(selectedDate || undefined);
       setTeamStandups(data);
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { msg?: string } } };
-      setError(error.response?.data?.msg || 'Failed to fetch team standups');
+      const error = err as AxiosError<{ msg?: string; message?: string; errors?: { message?: string }[] }>;
+      let errorMsg = error.response?.data?.msg || error.response?.data?.message || 'Failed to fetch team standups';
+      const errors = error.response?.data?.errors;
+      if (Array.isArray(errors) && errors.length > 0 && errors[0].message) {
+        errorMsg = errors[0].message;
+      }
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createOrUpdateStandup, getTodayStandup } from '../api/standups';
 import type { StandupData, Standup } from '../api/standups';
+import type { AxiosError } from 'axios';
 
 const Dashboard: React.FC = () => {
   const [formData, setFormData] = useState<StandupData>({
@@ -31,8 +32,13 @@ const Dashboard: React.FC = () => {
         });
       }
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { msg?: string } } };
-      setError(error.response?.data?.msg || 'Failed to fetch today\'s standup');
+      const error = err as AxiosError<{ msg?: string; message?: string; errors?: { message?: string }[] }>;
+      let errorMsg = error.response?.data?.msg || error.response?.data?.message || 'Failed to fetch today\'s standup';
+      const errors = error.response?.data?.errors;
+      if (Array.isArray(errors) && errors.length > 0 && errors[0].message) {
+        errorMsg = errors[0].message;
+      }
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -56,8 +62,13 @@ const Dashboard: React.FC = () => {
       setSuccess(existingStandup ? 'Standup updated successfully!' : 'Standup created successfully!');
       await fetchTodayStandup(); // Refresh the data
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { msg?: string } } };
-      setError(error.response?.data?.msg || 'Failed to save standup');
+      const error = err as AxiosError<{ msg?: string; message?: string; errors?: { message?: string }[] }>;
+      let errorMsg = error.response?.data?.msg || error.response?.data?.message || 'Failed to save standup';
+      const errors = error.response?.data?.errors;
+      if (Array.isArray(errors) && errors.length > 0 && errors[0].message) {
+        errorMsg = errors[0].message;
+      }
+      setError(errorMsg);
     } finally {
       setSaving(false);
     }
