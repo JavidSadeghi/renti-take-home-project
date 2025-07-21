@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../api/auth';
+import type { AxiosError } from 'axios';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -46,8 +47,13 @@ const Register: React.FC = () => {
       localStorage.setItem('user', JSON.stringify(response.user));
       navigate('/');
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { msg?: string } } };
-      setError(error.response?.data?.msg || 'Registration failed');
+      const error = err as AxiosError<{ msg?: string; message?: string; errors?: { message?: string }[] }>;
+      let errorMsg = error.response?.data?.msg || error.response?.data?.message || 'Registration failed';
+      const errors = error.response?.data?.errors;
+      if (Array.isArray(errors) && errors.length > 0 && errors[0].message) {
+        errorMsg = errors[0].message;
+      }
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

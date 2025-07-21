@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../api/auth';
+import type { AxiosError } from 'axios';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -29,8 +30,13 @@ const Login: React.FC = () => {
       localStorage.setItem('user', JSON.stringify(response.user));
       navigate('/');
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { msg?: string } } };
-      setError(error.response?.data?.msg || 'Login failed');
+      const error = err as AxiosError<{ msg?: string; message?: string; errors?: { message?: string }[] }>;
+      let errorMsg = error.response?.data?.msg || error.response?.data?.message || 'Login failed';
+      const errors = error.response?.data?.errors;
+      if (Array.isArray(errors) && errors.length > 0 && errors[0].message) {
+        errorMsg = errors[0].message;
+      }
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

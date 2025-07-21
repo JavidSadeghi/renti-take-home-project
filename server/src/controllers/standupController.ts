@@ -151,6 +151,10 @@ export const getUserHistory = async (req: AuthRequest, res: Response) => {
       ...dateFilter
     });
 
+    if (standups.length === 0) {
+      return res.status(404).json({ message: 'No records or history found for the specified period.' });
+    }
+
     res.json({
       standups,
       pagination: {
